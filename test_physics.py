@@ -1,4 +1,6 @@
 import unittest
+import math
+import numpy as np
 from physics import *
 
 
@@ -18,6 +20,59 @@ class TestPhysics(unittest.TestCase):
         self.assertAlmostEqual(calculate_pressure(2), 120945)
         self.assertAlmostEqual(calculate_pressure(-3), 130755)
 
+    def test_calculate_acceleration(self):
+        self.assertAlmostEqual(calculate_acceleration(102.0, 51.0), 2.0)
+        self.assertAlmostEqual(calculate_acceleration(57.0, 19.0), 3.0)
+        self.assertRaises(ValueError, calculate_acceleration, 68.0, -9.0)
+
+    def test_calculate_acceleration(self):
+        self.assertAlmostEqual(calculate_angular_acceleration(102.0, 51.0), 2.0)
+        self.assertAlmostEqual(calculate_angular_acceleration(57.0, 19.0), 3.0)
+        self.assertRaises(ValueError, calculate_angular_acceleration, 68.0, -9.0)
+
+    def test_calculate_torque(self):
+        self.assertAlmostEqual(calculate_torque(20.0, 45.0, math.sqrt(2)), 20.0)
+        self.assertAlmostEqual(calculate_torque(10.0, 30.0, 5.0), 25.0)
+        self.assertAlmostEqual(calculate_torque(5.0, 60.0, math.sqrt(3)), 7.5)
+
+    def test_calculate_moment_of_inertia(self):
+        self.assertAlmostEqual(calculate_moment_of_inertia(2.0, 6.0), 72.0)
+        self.assertRaises(ValueError, calculate_moment_of_inertia, 68.0, -9.0)
+        self.assertRaises(ValueError, calculate_moment_of_inertia, -68.0, 9.0)
+
+    def test_calculate_auv_acceleration(self):
+        self.assertAlmostEqual(calculate_auv_acceleration(5, np.pi / 10)[0], 0.05 * np.cos(np.pi / 10))
+        self.assertAlmostEqual(calculate_auv_acceleration(5, np.pi / 10)[1], 0.05 * np.sin(np.pi / 10))
+        self.assertAlmostEqual(calculate_auv_acceleration(10, np.pi / 8)[0], 0.10 * np.cos(np.pi / 8))
+        self.assertAlmostEqual(calculate_auv_acceleration(10, np.pi / 8)[1], 0.10 * np.sin(np.pi / 8))
+        self.assertAlmostEqual(calculate_auv_acceleration(20, np.pi / 6)[0], 0.20 * np.cos(np.pi / 6))
+        self.assertAlmostEqual(calculate_auv_acceleration(20, np.pi / 6)[1], 0.20 * np.sin(np.pi / 6))
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, 31.0)
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, - 30.0, - 1.0)
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, 31.0, 1.0,  - 8.0)
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, 31.0, 1.0, 8.0, - 1.5)
+
+
+    def test_calculate_auv_angular_acceleration(self):
+        self.assertAlmostEqual(calculate_auv_angular_acceleration(5.0, np.pi / 10), 2.5 * np.sin(np.pi / 10))
+        self.assertAlmostEqual(calculate_auv_angular_acceleration(10.0, np.pi / 9), 5.0 * np.sin(np.pi / 9))
+        self.assertAlmostEqual(calculate_auv_angular_acceleration(20.0, np.pi / 6), 10.0 * np.sin(np.pi / 6))
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, 31.0)
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, - 30.0, - 1.0)
+        self.assertRaises(ValueError, calculate_auv_acceleration, 1.0, 31.0, 1.0, -8.0)
+
+    def test_calculate_auv2_acceleration(self):
+        T = np.array([2.0, 4.0, 8.0, 6.0])
+        self.assertAlmostEqual(calculate_auv2_acceleration(T, np.pi / 4, np.pi / 6, 1.0)[0], math.sqrt(2) - 2.0 * math.sqrt(6))
+        self.assertAlmostEqual(calculate_auv2_acceleration(T, np.pi / 4, np.pi / 6, 1.0)[1], - 2.0 * math.sqrt(2) - math.sqrt(6))
+        self.assertRaises(ValueError, calculate_auv2_acceleration, T, np.pi / 4, np.pi / 6, 0.0)
+    
+    def test_calculate_auv2_angular_acceleration(self):
+        T = np.array([2.0, 4.0, 10.0, 6.0])
+        self.assertAlmostEqual(calculate_auv2_angular_acceleration(T, np.pi / 4, 2.0, 3.0, 1.0), 5.0 * math.sqrt(2))
+        self.assertRaises(ValueError, calculate_auv2_angular_acceleration, T, np.pi / 4, - 1.0, 3.0)
+        self.assertRaises(ValueError, calculate_auv2_angular_acceleration, T, np.pi / 4, 1.0, - 3.0)
+        self.assertRaises(ValueError, calculate_auv2_angular_acceleration, T, np.pi / 4, 1.0, 3.0, - 98.0)
 
 if __name__ == "__main__":
     unittest.main()
