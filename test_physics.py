@@ -33,7 +33,7 @@ class TestPhysics(unittest.TestCase):
     def test_calculate_torque(self):
         self.assertAlmostEqual(calculate_torque(20.0, 45.0, math.sqrt(2)), 20.0)
         self.assertAlmostEqual(calculate_torque(10.0, 30.0, 5.0), 25.0)
-        self.assertAlmostEqual(calculate_torque(5.0, 60.0, math.sqrt(3)), 7.5)
+        self.assertRaises(ValueError, calculate_torque, 5.0, 60.0, -math.sqrt(3))
 
     def test_calculate_moment_of_inertia(self):
         self.assertAlmostEqual(calculate_moment_of_inertia(2.0, 6.0), 72.0)
@@ -84,6 +84,7 @@ class TestPhysics(unittest.TestCase):
 
     def test_calculate_auv2_acceleration(self):
         T = np.array([2.0, 4.0, 8.0, 6.0])
+        T_error = np.array([1.0])
         self.assertTrue(
             np.allclose(
                 calculate_auv2_acceleration(T, np.pi / 4, np.pi / 6, 1.0),
@@ -98,9 +99,13 @@ class TestPhysics(unittest.TestCase):
         self.assertRaises(
             ValueError, calculate_auv2_acceleration, T, np.pi / 4, np.pi / 6, 0.0
         )
+        self.assertRaises(
+            ValueError, calculate_auv2_acceleration, T_error, np.pi / 4, np.pi / 6
+        )
 
     def test_calculate_auv2_angular_acceleration(self):
         T = np.array([2.0, 4.0, 10.0, 6.0])
+        T_error = np.array([1.0])
         self.assertAlmostEqual(
             calculate_auv2_angular_acceleration(T, np.pi / 4, 2.0, 3.0, 1.0),
             5.0 * math.sqrt(2),
@@ -119,6 +124,14 @@ class TestPhysics(unittest.TestCase):
             1.0,
             3.0,
             -98.0,
+        )
+        self.assertRaises(
+            ValueError,
+            calculate_auv2_angular_acceleration,
+            T_error,
+            np.pi / 4,
+            1.0,
+            2.0,
         )
 
 
