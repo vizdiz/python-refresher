@@ -90,7 +90,7 @@ def calculate_moment_of_inertia(m, r):
 
 
 def calculate_auv_acceleration(
-    F_magnitude, F_angle, mass = 100, volume = 0.1, thruster_distance = 0.5
+    F_magnitude, F_angle, mass=100, volume=0.1, thruster_distance=0.5
 ):
     """
     Calculate the acceleration of an AUV given the magnitude and direction of the force exerted by the thruster, the mass and volume of the AUV, and the distance from the thruster to the center of mass of the AUV
@@ -110,14 +110,14 @@ def calculate_auv_acceleration(
         raise ValueError(
             "Thrusters are unable to rotate beyond thirty degrees in either direction, thruster distance must be a positive quantity, volume and mass must be quantity, and thruster may only apply forces with a magnitude of less than 100 m"
         )
-    return (
+    return np.array([
         calculate_acceleration(F_magnitude * np.cos(F_angle), mass),
         calculate_acceleration(F_magnitude * np.sin(F_angle), mass),
-    )
+    ])
 
 
 def calculate_auv_angular_acceleration(
-    F_magnitude, F_angle, inertia = 1, thruster_distance = 0.5
+    F_magnitude, F_angle, inertia=1, thruster_distance=0.5
 ):
     """
     Calculates the angular acceleration of an AUV given the magnitude and direction of the force applied, the inertia of the ROV, and the distance to the thruster from teh AUV's center of mass
@@ -139,7 +139,7 @@ def calculate_auv_angular_acceleration(
 
 
 # More testing necessary
-def calculate_auv2_acceleration(T, alpha, theta, mass = 100):
+def calculate_auv2_acceleration(T, alpha, theta, mass=100):
     """
     Calculates the acceleration of the AUV in the 2-D plane given the forces applied by each of the four thrusters, the angle at which the thrusters are rotated, the angle at which the AUV is rotated, and the mass of the AUV
 
@@ -153,17 +153,17 @@ def calculate_auv2_acceleration(T, alpha, theta, mass = 100):
         raise ValueError("The mass of the object must be a positive quantity")
     r_alpha = np.array(
         [
-            [np.cos(alpha), np.cos(alpha), - np.cos(alpha), - np.cos(alpha)],
-            [np.sin(alpha), - np.sin(alpha), - np.sin(alpha), np.sin(alpha)],
+            [np.cos(alpha), np.cos(alpha), -np.cos(alpha), -np.cos(alpha)],
+            [np.sin(alpha), -np.sin(alpha), -np.sin(alpha), np.sin(alpha)],
         ]
     )
     r_theta = np.array(
-        [[np.cos(theta), - np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+        [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
     )
     return np.dot(r_theta, np.dot(r_alpha, T)) / mass
 
 
-def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia = 100):
+def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia=100):
     """
     Calculate the angular acceleration of the AUV given the forces applied by each of the four thrusters, the angle at which the thrusters are rotated, the angle at which the AUV is rotated, the dimensions of the AUV, and the rotational inertia of the AUV
 
@@ -183,10 +183,13 @@ def calculate_auv2_angular_acceleration(T, alpha, L, l, inertia = 100):
     sin_gamma = L * np.sin(alpha) + l * np.cos(alpha)
     return np.sum(np.multiply(r_rotation, T) * sin_gamma) / inertia
 
+
 # Test 9 Debugging
 
 print(calculate_auv2_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 0.3))
-print(calculate_auv2_angular_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 1.5, 1.8))
+print(
+    calculate_auv2_angular_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 1.5, 1.8)
+)
 
 """
 Expected Output:
