@@ -204,7 +204,7 @@ def simulate_auv2_motion(
     T, alpha, L, l, inertia=100, mass=100, dt=0.1, t_final=10, x0=0, y0=0, theta0=0
 ):
     """
-    Simulates the motion of the AUV in the 2-D plane, assume it starts at the origin with an initial velocity of 0 m/s, with the ability to move and rotate in any direction simultaneously
+    Simulates the motion of the AUV in the 2-D plane, returns numpy arrays of time, x and y positions, angular displacement, linear velocities on the x and y axes, angular velocity, and the linear acceleration; assume the AUV starts at the origin with an initial velocity of 0 m/s, with the ability to move and rotate in any direction simultaneously
 
     T: np.ndarray of the magnitude of forces applied to the thrusters in rad
     alpha: angle of the thruster relative to the x-axis in rad
@@ -234,23 +234,23 @@ def simulate_auv2_motion(
     x = np.zeros_like(t)
     y = np.zeros_like(t)
     theta = np.zeros_like(t)
-    v = np.zeros((int(t_final / dt), 2))
+    v = np.zeros((len(t), 2))
     omega = np.zeros_like(t)
-    a = np.zeros((int(t_final / dt), 2))
+    a = np.zeros((len(t), 2))
 
     x[0] = x0
     y[0] = y0
     theta[0] = theta0
     a_angular = calculate_auv2_angular_acceleration(T, alpha, L, l, inertia)
-    a[0] = calculate_auv2_acceleration(T, alpha, theta0)
+    a[0] = calculate_auv2_acceleration(T, alpha, theta0, inertia)
 
     for i in range(1, len(t)):
         omega[i] = omega[i - 1] + a_angular * dt
-        a[i][:] = calculate_auv2_acceleration(T, alpha, theta[i - 1])
-        v[i][:] = v[i - 1] + a[i - 1] * dt
-        x[i] = x[i - 1] + v[i - 1][0] * dt
-        y[i] = y[i - 1] + v[i - 1][1] * dt
-        theta[i] = theta[i - 1] + omega[i - 1] * dt
+        a[i] = calculate_auv2_acceleration(T, alpha, theta[i], mass)
+        v[i] = v[i - 1] + a[i] * dt
+        x[i] = x[i - 1] + v[i][0] * dt
+        y[i] = y[i - 1] + v[i][1] * dt
+        theta[i] = theta[i - 1] + omega[i] * dt
 
     return (t, x, y, theta, v, omega, a)
 
@@ -289,11 +289,11 @@ Expected Output:
 
 # for i in range(1, 4):
 #     omega.append(omega[i - 1] + a_angular * dt)
-#     a.append(calculate_auv2_acceleration(T, alpha, theta[i - 1]))
-#     v.append(v[i - 1] + a[i - 1] * dt)
-#     x.append(x[i - 1] + v[i - 1][0] * dt)
-#     y.append(y[-1] + v[i - 1][1] * dt)
-#     theta.append(theta[i - 1] + omega[i - 1] * dt)
+#     a.append(calculate_auv2_acceleration(T, alpha, theta[-1]))
+#     v.append(v[i - 1] + a[-1] * dt)
+#     x.append(x[i - 1] + v[-1][0] * dt)
+#     y.append(y[i - 1] + v[-1][1] * dt)
+#     theta.append(theta[i - 1] + omega[-1] * dt)
 
 # print(a_angular)
 # print(x)

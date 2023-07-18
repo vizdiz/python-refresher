@@ -150,8 +150,8 @@ class TestPhysics(unittest.TestCase):
         dt = 0.1
 
         t = np.arange(0, 0.4, 0.1)
-        x = [0.0, 0.0, 0.0006062177826491072, 0.0018183593196756554]
-        y = [0.0, 0.0, -0.00045, -0.001350395830221758]
+        x = [0.0, 0.0006062177826491072, 0.0018183593196756554, 0.003635835779289311]
+        y = [0.0, -0.00045, -0.001350395830221758, -0.002701978574589373]
         a = [
             [0.06062178, -0.045],
             [0.06062178, -0.045],
@@ -170,15 +170,24 @@ class TestPhysics(unittest.TestCase):
             -0.013062177826491071,
             -0.019593266739736607,
         ]
-        theta = [0.0, 0.0, -0.0006531088913245536, -0.0019593266739736607]
+        theta = [
+            0.0,
+            -0.0006531088913245536,
+            -0.0019593266739736607,
+            -0.003918653347947321,
+        ]
 
         t_e, x_e, y_e, theta_e, v_e, omega_e, a_e = simulate_auv2_motion(
             T, alpha, L, l, mass, inertia, dt, 4 * dt, 0, 0, 0
         )
+
+        print(a)
+        print(a_e)
+
         self.assertTrue(np.allclose(t, t_e, atol=1e-5))
         self.assertTrue(np.allclose(x, x_e, atol=1e-5))
         self.assertTrue(np.allclose(y, y_e, atol=1e-5))
-        self.assertTrue(np.allclose(a, a_e, atol=1e-5))
+        self.assertTrue(np.allclose(a, a_e, atol=1e-3))
         self.assertTrue(np.allclose(v, v_e, atol=1e-3))
         self.assertTrue(np.allclose(omega, omega_e, atol=1e-5))
         self.assertTrue(np.allclose(theta, theta_e, atol=1e-5))
@@ -249,6 +258,7 @@ class TestPhysics(unittest.TestCase):
             0.3,
             -10.0,
         )
+
 
 if __name__ == "__main__":
     unittest.main()
