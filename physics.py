@@ -1,9 +1,12 @@
 import numpy as np
+from operator import add
 
 # Global constants
 g = 9.81  # m/s^2
 density_water = 1000  # kg/m^3
 atmospheric_pressure = 101325  # Pa
+
+# Add suggested types and return types
 
 
 def calculate_buoyancy(density_fluid, v):
@@ -92,7 +95,7 @@ def calculate_moment_of_inertia(m, r):
         raise ValueError(
             "Object must have a positive mass, and the distance from the axis of rotation to the center of mass of the object must be positive"
         )
-    return m * r**2  # kg*m^2
+    return m * np.power(r, 2)  # kg*m^2
 
 
 def calculate_auv_acceleration(
@@ -214,18 +217,32 @@ def simulate_auv2_motion(
     y0(optional): initial y-position of the AUV
     theta0(optional): the initial angle of the AUV in rad
     """
+
+    if type(T) != np.ndarray:
+        raise TypeError("Input array must be a numpy array")
+    if (
+        (inertia <= 0 or mass <= 0)
+        or (L <= 0 or l <= 0)
+        or (dt < 0 or t_final < 0)
+        or (T.shape[0] != 4 and T.ndim >= 1)
+    ):
+        raise ValueError(
+            "The mass and inertia of the object must be a positive quantity, distances must be positive quantities, time cannot be a negative quantity, and the forces array must be a numpy array and have an entry for each thruster"
+        )
+
     t = np.arange(0, t_final, dt)
     x = np.zeros_like(t)
     y = np.zeros_like(t)
     theta = np.zeros_like(t)
-    v = np.zeros((int(t_final / dt) + 1, 2))
+    v = np.zeros((int(t_final / dt), 2))
     omega = np.zeros_like(t)
-    a = np.zeros((int(t_final / dt) + 1, 2))
+    a = np.zeros((int(t_final / dt), 2))
 
     x[0] = x0
     y[0] = y0
     theta[0] = theta0
-    a_angular = calculate_auv2_angular_acceleration(T, inertia, L, l, alpha)
+    a_angular = calculate_auv2_angular_acceleration(T, alpha, L, l, inertia)
+    a[0] = calculate_auv2_acceleration(T, alpha, theta0)
 
     for i in range(1, len(t)):
         omega[i] = omega[i - 1] + a_angular * dt
@@ -238,15 +255,53 @@ def simulate_auv2_motion(
     return (t, x, y, theta, v, omega, a)
 
 
-# Test 9 Debugging
+# Exercise 9 Debugging
 
-print(calculate_auv2_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 0.3))
-print(
-    calculate_auv2_angular_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 1.5, 1.8)
-)
+
+# print(calculate_auv2_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 0.3))
+# print(
+#     calculate_auv2_angular_acceleration(np.array([1.0, 3.0, 1.0, 2.0]), 0.5, 1.5, 1.8)
+# )
 
 """
 Expected Output:
 [ 0.00980067 -0.00198669]
 -0.06896360757926927
 """
+
+# Generate Test Cases for Exercise 10
+
+# T = np.array([1.0, 9.0, 2.0, 1.0])
+# alpha = np.pi / 6
+# l = 0.5
+# L = 1.0
+# inertia = 100
+# mass = 100
+# dt = 0.1
+
+# a_angular = calculate_auv2_angular_acceleration(T, alpha, L, l, inertia)
+# x = [0.0]
+# y = [0.0]
+# theta = [0.0]
+# a = [np.array(calculate_auv2_acceleration(T, alpha, theta[0]))]
+# omega = [0.0]
+# v = [np.zeros((2))]
+
+# for i in range(1, 4):
+#     omega.append(omega[i - 1] + a_angular * dt)
+#     a.append(calculate_auv2_acceleration(T, alpha, theta[i - 1]))
+#     v.append(v[i - 1] + a[i - 1] * dt)
+#     x.append(x[i - 1] + v[i - 1][0] * dt)
+#     y.append(y[-1] + v[i - 1][1] * dt)
+#     theta.append(theta[i - 1] + omega[i - 1] * dt)
+
+# print(a_angular)
+# print(x)
+# print(y)
+# print(a)
+# print(v)
+# print(omega)
+# print(theta)
+
+# Debugging case for Exercise 10
+# simulate_auv2_motion(np.array([40, 60, 80, 100]), np.pi / 3, 3, 2)
